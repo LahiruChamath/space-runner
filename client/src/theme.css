@@ -1,0 +1,13 @@
+:root {
+  /* TODO: Replace with Figma tokens (Dev mode → Inspect → CSS) */
+  --bg: #0b1020;
+  --panel: #10172a;
+  --text: #e6ecff;
+  --muted: #94a3b8;
+  --accent: #7c3aed;   /* primary */
+  --accent-2: #22d3ee; /* secondary */
+  --danger: #ef4444;
+}
+
+html, body, #root { height: 100%; }
+body { background: radial-gradient(1200px 800px at 70% -10%, #1b2140, var(--bg)); color: var(--text); }

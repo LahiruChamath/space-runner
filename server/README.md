@@ -1,0 +1,11 @@
+# Server notes
+- Authentication: JWT in httpOnly cookie named `sid`.
+- Endpoints:
+  - POST /api/auth/register {username,email,password}
+  - POST /api/auth/login    {email,password}
+  - POST /api/auth/logout
+  - GET  /api/auth/me
+  - GET  /api/banana/new           -> { imageUrl, token }
+  - POST /api/banana/answer        -> { correct }
+  - POST /api/scores/submit        -> {durationMs,dodges,correctAnswers,wrongAnswers}
+  - GET  /api/scores/top?type=...  -> time|mixed
