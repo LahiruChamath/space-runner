@@ -21,6 +21,9 @@ export default function Game() {
 
   const [authChecked, setAuthChecked] = useState(false);
 
+  // Used to force a fresh game loop when clicking "Play Again"
+  const [runId, setRunId] = useState(0);
+
   const [viewSize, setViewSize] = useState({ w: W, h: H });
   useEffect(() => {
     const fit = () => {
@@ -61,7 +64,7 @@ export default function Game() {
       startedRef.current = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authChecked]);
+  }, [authChecked, runId]);
 
   function startGame() {
     if (startedRef.current) return () => {};
@@ -114,9 +117,11 @@ export default function Game() {
       last = t;
 
       if (!pausedRef.current) {
+        // time
         elapsedRef.current += dt;
         setTimeSec(elapsedRef.current);
 
+        // spawn rate scales with time survived
         const rate = Math.min(1.5, 0.5 + elapsedRef.current / 60);
         accSpawn += dt * rate;
         while (accSpawn > 0.5) {
@@ -124,12 +129,15 @@ export default function Game() {
           spawn();
         }
 
+        // movement
         if (keys.has('ArrowLeft')) ship.x -= ship.speed * dt;
         if (keys.has('ArrowRight')) ship.x += ship.speed * dt;
         ship.x = Math.max(20, Math.min(W - 20, ship.x));
 
+        // move asteroids
         for (const a of ast) a.y += a.vy * dt;
 
+        // remove offscreen + count dodges
         const before = ast.length;
         for (let i = ast.length - 1; i >= 0; i--) {
           if (ast[i].y > H + 40) ast.splice(i, 1);
@@ -140,22 +148,27 @@ export default function Game() {
           setScore((s) => s + removed * 10);
         }
 
+        // banana shield countdown
         if (immunityRef.current > 0) {
           immunityRef.current = Math.max(0, immunityRef.current - dt);
           const c = Math.ceil(immunityRef.current);
           setCountdown(c > 0 ? c : 0);
         }
 
+        // collisions
         for (const a of ast) {
           const dx = a.x - ship.x;
           const dy = a.y - ship.y;
           if (Math.hypot(dx, dy) < a.r + 24) {
+            // hit
             if (immunityRef.current > 0) break;
             if (bananaUsedRef.current) {
+              // already used banana -> instant game over
               gameOver();
               break;
             }
             if (!bananaActiveRef.current) {
+              // first hit -> trigger banana quiz
               bananaActiveRef.current = true;
               pausedRef.current = true;
               setPaused(true);
@@ -266,7 +279,8 @@ export default function Game() {
   }
 
   function playAgain() {
-    nav('/game?r=' + Date.now());
+    // Restart the game loop cleanly without changing routes
+    setRunId((id) => id + 1);
   }
 
   if (!authChecked) {
@@ -287,7 +301,13 @@ export default function Game() {
           style={{ width: `${viewSize.w}px`, height: `${viewSize.h}px` }}
           className="border border-white/10 rounded-2xl"
         />
-        <HUD timeSec={timeSec} score={score} lives={1} />
+
+        <HUD
+          timeSec={timeSec}
+          score={score}
+          lives={1}
+          lifeState={showBanana ? 'fading' : 'normal'}
+        />
 
         {countdown > 0 && (
           <div className="absolute inset-0 grid place-items-center pointer-events-none">
