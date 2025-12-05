@@ -29,23 +29,25 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center px-4">
-      <div className="relative w-full max-w-4xl">
+    <div className="min-h-[calc(100vh-80px)] flex items-center px-4">
+      <div className="relative w-full max-w-5xl mx-auto">
+        {/* Soft background glow */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute -inset-24 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.35),transparent_55%),radial-gradient(circle_at_bottom,_rgba(129,140,248,0.35),transparent_55%)] opacity-70"
         />
 
-        <div className="relative rounded-3xl border border-white/10 bg-black/50 backdrop-blur-xl px-6 py-8 md:px-10 md:py-10 space-y-10 shadow-[0_25px_80px_rgba(0,0,0,0.7)]">
-          <div className="flex items-center justify-between gap-4">
+        <div className="relative space-y-10">
+          {/* Top row: title + actions */}
+          <div className="flex items-center justify-between gap-4 pt-4">
             <div>
-              {/* <div className="text-[10px] tracking-[0.28em] uppercase text-emerald-300/80 mb-1">
-                Arcade mode
-              </div> */}
               <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
                 <span className="text-cyan-300">Space</span>{' '}
                 <span className="text-emerald-300">Runner</span>
               </h1>
+              <p className="mt-1 text-xs md:text-sm text-white/60">
+                A fast-paced space dodging game. Pilot your ship, avoid the field, and push your best run.
+              </p>
             </div>
 
             <div className="flex items-center gap-3">
@@ -63,7 +65,7 @@ export default function Home() {
                 <div className="flex items-center gap-2">
                   <div className="text-right text-xs text-white/60">
                     <div className="uppercase tracking-wide text-[11px] text-emerald-300/80">
-                      Player
+                      Commander
                     </div>
                     <div className="font-semibold text-sm">{user.username}</div>
                   </div>
@@ -102,31 +104,105 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex flex-col items-center gap-6 pt-4">
-            <p className="text-center text-sm md:text-base text-white/70 max-w-xl">
-              Dodge incoming asteroids in an endless hyperspace tunnel. Survive a hit by solving the
-              Banana puzzle for one extra chance or get vaporised trying. Good Luck Commander!
-            </p>
-
-            <button
-              onClick={handleStart}
-              className="relative btn-primary mt-2 px-10 py-4 text-lg md:text-xl font-semibold tracking-wide flex items-center gap-3"
-            >
-              <span
-                className="absolute -inset-1 rounded-full bg-cyan-400/40 blur-2xl -z-10"
-                aria-hidden="true"
-              />
-              <span role="img" aria-hidden="true" className="text-2xl">
-                🚀
-              </span>
-              Launch Mission
-            </button>
-
-            {!loading && !user && (
-              <p className="text-xs md:text-sm text-white/60 pt-2">
-                Log in or create an account to save your best scores on the leaderboard.
+          {/* Main row: left (description/CTA) + right (mission briefing) */}
+          <div className="flex flex-col md:flex-row items-start justify-between gap-10 md:gap-14 pb-8">
+            {/* Left: description + controls + CTA */}
+            <div className="flex-1 flex flex-col items-center md:items-start gap-6">
+              <p className="text-center md:text-left text-sm md:text-base text-white/70 max-w-xl">
+                Dodge incoming asteroids while you race through space. The first hit triggers a Banana
+                puzzle that can give you a brief shield — fail it and your run ends on the spot.
               </p>
-            )}
+
+              {/* How to play / controls chips */}
+              <div className="flex flex-wrap justify-center md:justify-start gap-3 text-xs md:text-sm text-white/70">
+                <div className="px-3 py-1 rounded-full bg-black/60 border border-white/10 flex items-center gap-2">
+                  <span>🎮</span>
+                  <span>Controls: ← → to steer</span>
+                </div>
+                <div className="px-3 py-1 rounded-full bg-black/60 border border-white/10 flex items-center gap-2">
+                  <span>🍌</span>
+                  <span>First hit: solve banana for a 3s shield</span>
+                </div>
+                <div className="px-3 py-1 rounded-full bg-black/60 border border-white/10 flex items-center gap-2">
+                  <span>📈</span>
+                  <span>Score = Time + Dodges</span>
+                </div>
+              </div>
+
+              {/* Main CTA */}
+              <div className="flex flex-col items-center md:items-start gap-2 pt-2">
+                <button
+                  onClick={handleStart}
+                  className="relative btn-primary mt-1 px-10 py-4 text-lg md:text-xl font-semibold tracking-wide flex items-center gap-3"
+                >
+                  <span
+                    className="absolute -inset-1 rounded-full bg-cyan-400/40 blur-2xl -z-10"
+                    aria-hidden="true"
+                  />
+                  <span role="img" aria-hidden="true" className="text-2xl">
+                    🚀
+                  </span>
+                  Launch Mission
+                </button>
+
+                {!loading && !user && (
+                  <p className="text-xs md:text-sm text-white/60 pt-1 text-center md:text-left">
+                    Log in or create an account to save your best scores on the leaderboard.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Right: Mission briefing (no big box) */}
+            <div className="flex-1 flex justify-center md:justify-end">
+              <div className="space-y-4 text-xs md:text-sm text-white/70 max-w-sm">
+                <h2 className="text-base md:text-lg font-semibold text-white">
+                  Mission Briefing
+                </h2>
+                <ol className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="mt-1 text-lg">1.</span>
+                    <div>
+                      <div className="font-semibold text-white">Take the controls</div>
+                      <p className="text-white/70">
+                        Use the left and right arrow keys to keep your ship clear of oncoming asteroids.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="mt-1 text-lg">2.</span>
+                    <div>
+                      <div className="font-semibold text-white">Stay in motion</div>
+                      <p className="text-white/70">
+                        Asteroids keep spawning and speeding up over time. The longer you last, the higher
+                        your score.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="mt-1 text-lg">3.</span>
+                    <div>
+                      <div className="font-semibold text-white">Use your second chance</div>
+                      <p className="text-white/70">
+                        On your first hit, solve the Banana puzzle to gain a short shield. Miss it, and the
+                        run ends immediately.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="mt-1 text-lg">4.</span>
+                    <div>
+                      <div className="font-semibold text-white">Push your best run</div>
+                      <p className="text-white/70">
+                        Your score grows with time survived and asteroids dodged. Climb the leaderboard by
+                        flying just a little bit further each time.
+                      </p>
+                    </div>
+                  </li>
+                </ol>
+              </div>
+            </div>
+            {/* end right column */}
           </div>
         </div>
       </div>
