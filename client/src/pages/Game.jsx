@@ -25,7 +25,7 @@ export default function Game() {
   const [runId, setRunId] = useState(0);
 
   const [viewSize, setViewSize] = useState({ w: W, h: H });
-  const [hitEffect, setHitEffect] = useState(false); // NEW: hit shake/flash
+  const [hitEffect, setHitEffect] = useState(false); // hit shake/flash
 
   useEffect(() => {
     const fit = () => {
@@ -49,6 +49,18 @@ export default function Game() {
   const immunityRef = useRef(0);
   const [countdown, setCountdown] = useState(0);
   const statsRef = useRef({ dodges: 0, correct: 0, wrong: 0 });
+
+  // New score = time + dodges
+  function computeScore() {
+    const T = elapsedRef.current; // seconds
+    const { dodges: D } = statsRef.current;
+    const raw = Math.floor(T * 3) + D * 15; // 3 per second, 15 per dodge
+    return Math.max(0, raw);
+  }
+
+  function updateScore() {
+    setScore(computeScore());
+  }
 
   useEffect(() => {
     me()
@@ -89,7 +101,7 @@ export default function Game() {
     setShowBanana(false);
     setRunning(true);
     setTimeSec(0);
-    setScore(0);
+    setScore(0); // reset score for new run
     setCountdown(0);
     setHitEffect(false);
 
@@ -159,7 +171,7 @@ export default function Game() {
         const removed = before - ast.length;
         if (removed > 0) {
           statsRef.current.dodges += removed;
-          setScore((s) => s + removed * 10);
+          // no direct score add here; score is derived from dodges + time
         }
 
         // banana shield countdown
@@ -194,6 +206,9 @@ export default function Game() {
           }
         }
       }
+
+      // update score based on current time + dodges
+      updateScore();
 
       render(ctx, ship, ast);
       rafIdRef.current = requestAnimationFrame(frame);
@@ -338,7 +353,7 @@ export default function Game() {
     setCountdown(3);
     pausedRef.current = false;
     setPaused(false);
-    setScore((s) => s + 50);
+    // score is NOT changed directly; it's derived from time + dodges
   }
 
   function bananaWrong() {
