@@ -389,12 +389,12 @@ export default function Game() {
         />
 
         <HUD
-          timeSec={timeSec}
-          score={score}
-          lives={1}
-          lifeState={showBanana ? 'fading' : 'normal'}
-        />
-
+  timeSec={timeSec}
+  score={score}
+  dodges={statsRef.current.dodges}
+  lives={1}
+  lifeState={showBanana ? 'fading' : 'normal'}
+/>
         {countdown > 0 && (
           <div className="absolute inset-0 grid place-items-center pointer-events-none">
             <div className="text-6xl font-bold text-white/80 drop-shadow">{countdown}</div>
