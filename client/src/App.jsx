@@ -13,13 +13,7 @@ export default function App() {
           <Outlet />
         </div>
       </main>
-
-      <footer className="py-6 text-center text-white/50 text-sm">
-        Built for CIS046-3 •{' '}
-        <Link className="underline" to="/leaderboards">
-          Leaderboards
-        </Link>
-      </footer>
+      
     </div>
   );
 }

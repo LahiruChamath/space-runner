@@ -30,9 +30,9 @@ export default function NavBar() {
     <header className="border-b border-white/10 bg-black/60 backdrop-blur-md">
       <div className="container flex items-center justify-between py-3 gap-4">
         <Link to="/" className="flex items-baseline gap-2">
-          <span className="text-[10px] uppercase tracking-[0.25em] text-emerald-300/80">
+          {/* <span className="text-[10px] uppercase tracking-[0.25em] text-emerald-300/80">
             Arcade
-          </span>
+          </span> */}
           <span className="font-semibold text-sm sm:text-base">
             Space <span className="text-emerald-300">Runner</span>
           </span>

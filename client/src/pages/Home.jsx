@@ -39,9 +39,9 @@ export default function Home() {
         <div className="relative rounded-3xl border border-white/10 bg-black/50 backdrop-blur-xl px-6 py-8 md:px-10 md:py-10 space-y-10 shadow-[0_25px_80px_rgba(0,0,0,0.7)]">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <div className="text-[10px] tracking-[0.28em] uppercase text-emerald-300/80 mb-1">
+              {/* <div className="text-[10px] tracking-[0.28em] uppercase text-emerald-300/80 mb-1">
                 Arcade mode
-              </div>
+              </div> */}
               <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
                 <span className="text-cyan-300">Space</span>{' '}
                 <span className="text-emerald-300">Runner</span>
@@ -105,7 +105,7 @@ export default function Home() {
           <div className="flex flex-col items-center gap-6 pt-4">
             <p className="text-center text-sm md:text-base text-white/70 max-w-xl">
               Dodge incoming asteroids in an endless hyperspace tunnel. Survive a hit by solving the
-              Banana puzzle for one extra chance — or get vaporised trying.
+              Banana puzzle for one extra chance or get vaporised trying. Good Luck Commander!
             </p>
 
             <button
@@ -119,7 +119,7 @@ export default function Home() {
               <span role="img" aria-hidden="true" className="text-2xl">
                 🚀
               </span>
-              Start Game
+              Launch Mission
             </button>
 
             {!loading && !user && (
