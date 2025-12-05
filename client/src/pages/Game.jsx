@@ -98,8 +98,10 @@ export default function Game() {
       ast.push({
         x: rand(20, W - 20),
         y: -40,
-        r: rand(12, 28),
-        vy: rand(120, 220)
+        r: rand(18, 30),
+        vy: rand(120, 220),
+        rot: rand(0, Math.PI * 2),      // starting rotation
+        vr: rand(-1, 1) * 1.5           // rotation speed (radians/sec)
       });
     }
 
@@ -134,8 +136,11 @@ export default function Game() {
         if (keys.has('ArrowRight')) ship.x += ship.speed * dt;
         ship.x = Math.max(20, Math.min(W - 20, ship.x));
 
-        // move asteroids
-        for (const a of ast) a.y += a.vy * dt;
+        // move & rotate asteroids
+        for (const a of ast) {
+          a.y += a.vy * dt;
+          a.rot += a.vr * dt;
+        }
 
         // remove offscreen + count dodges
         const before = ast.length;
@@ -204,6 +209,7 @@ export default function Game() {
     ctx.canvas.width = W;
     ctx.canvas.height = H;
 
+    // --- background ---
     const grd = ctx.createLinearGradient(0, 0, 0, H);
     grd.addColorStop(0, '#0b1020');
     grd.addColorStop(1, '#10172a');
@@ -215,6 +221,7 @@ export default function Game() {
       ctx.fillRect((i * 73) % W, (i * 131) % H, 2, 2);
     }
 
+    // --- banana shield ring ---
     if (immunityRef.current > 0) {
       ctx.save();
       ctx.globalAlpha = 0.85;
@@ -228,16 +235,69 @@ export default function Game() {
       ctx.restore();
     }
 
-    ctx.fillStyle = '#22d3ee';
+    // --- spaceship ---
+    ctx.save();
+    ctx.translate(ship.x, ship.y);
+
+    // ship body
+    ctx.fillStyle = '#0f172a';
+    ctx.strokeStyle = '#22d3ee';
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.arc(ship.x, ship.y, 24, 0, Math.PI * 2);
+    ctx.moveTo(0, -26);    // nose
+    ctx.lineTo(18, 18);    // right wing tip
+    ctx.lineTo(8, 22);     // right engine
+    ctx.lineTo(-8, 22);    // left engine
+    ctx.lineTo(-18, 18);   // left wing tip
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // cockpit
+    ctx.fillStyle = '#38bdf8';
+    ctx.beginPath();
+    ctx.ellipse(0, -8, 6, 8, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.fillStyle = '#a78bfa';
+    // engine flame
+    ctx.fillStyle = '#f97316';
+    ctx.beginPath();
+    ctx.moveTo(-4, 22);
+    ctx.lineTo(0, 32);
+    ctx.lineTo(4, 22);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.restore();
+
+    // --- asteroids ---
     for (const a of ast) {
+      ctx.save();
+      ctx.translate(a.x, a.y);
+      ctx.rotate(a.rot || 0);
+
+      ctx.fillStyle = '#a78bfa';
+      ctx.strokeStyle = '#7c3aed';
+      ctx.lineWidth = 2;
+
+      const spikes = 8;            // number of “chunks”
+      const inner = a.r * 0.6;     // inner radius
+      const outer = a.r;           // outer radius
+
       ctx.beginPath();
-      ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2);
+      for (let i = 0; i < spikes; i++) {
+        const radius = i % 2 === 0 ? outer : inner;
+        const angle = (i / spikes) * Math.PI * 2;
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
       ctx.fill();
+      ctx.stroke();
+
+      ctx.restore();
     }
   }
 
