@@ -25,6 +25,8 @@ export default function Game() {
   const [runId, setRunId] = useState(0);
 
   const [viewSize, setViewSize] = useState({ w: W, h: H });
+  const [hitEffect, setHitEffect] = useState(false); // NEW: hit shake/flash
+
   useEffect(() => {
     const fit = () => {
       const vw = window.innerWidth;
@@ -66,6 +68,12 @@ export default function Game() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authChecked, runId]);
 
+  function triggerHitEffect() {
+    // brief shake + flash on hit
+    setHitEffect(true);
+    setTimeout(() => setHitEffect(false), 220);
+  }
+
   function startGame() {
     if (startedRef.current) return () => {};
     startedRef.current = true;
@@ -83,6 +91,7 @@ export default function Game() {
     setTimeSec(0);
     setScore(0);
     setCountdown(0);
+    setHitEffect(false);
 
     const canvas = canvasRef.current;
     if (!canvas) return () => {};
@@ -166,6 +175,8 @@ export default function Game() {
           const dy = a.y - ship.y;
           if (Math.hypot(dx, dy) < a.r + 24) {
             // hit
+            triggerHitEffect();
+
             if (immunityRef.current > 0) break;
             if (bananaUsedRef.current) {
               // already used banana -> instant game over
@@ -353,7 +364,7 @@ export default function Game() {
 
   return (
     <div style={{ minHeight: 'calc(100vh - 120px)', display: 'grid', placeItems: 'center' }}>
-      <div className="relative">
+      <div className={`relative ${hitEffect ? 'hit-shake' : ''}`}>
         <canvas
           ref={canvasRef}
           width={W}

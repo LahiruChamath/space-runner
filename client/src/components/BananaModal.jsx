@@ -48,6 +48,12 @@ export default function BananaModal({ open, onCorrect, onWrong }) {
   return (
     <div className="fixed inset-0 z-40 bg-black/70 flex items-center justify-center">
       <div className="card max-w-md w-full mx-4 p-5 space-y-4">
+        {/* New banner */}
+        <div className="rounded-xl border border-amber-400/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-100 flex items-center gap-2">
+          <span>⚠️</span>
+          <span>Hit! Banana challenge incoming…</span>
+        </div>
+
         <h2 className="text-lg font-semibold">Second Chance Shield 🚀🛡️</h2>
         <p className="text-sm text-white/70">
           You’ve been hit, but it’s not over yet. Solve the banana puzzle 🍌 to earn a 3 second shield 🛡️ and keep your run alive 🚀. Fail, and your second chance is gone. Game Over ☠️
