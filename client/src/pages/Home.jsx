@@ -110,7 +110,7 @@ export default function Home() {
             <div className="flex-1 flex flex-col items-center md:items-start gap-6">
               <p className="text-center md:text-left text-sm md:text-base text-white/70 max-w-xl">
                 Dodge incoming asteroids while you race through space. The first hit triggers a Banana
-                puzzle that can give you a brief shield — fail it and your run ends on the spot.
+                puzzle that can give you a brief shield fail it and your run ends on the spot.
               </p>
 
               {/* How to play / controls chips */}
