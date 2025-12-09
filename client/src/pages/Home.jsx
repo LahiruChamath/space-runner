@@ -31,14 +31,12 @@ export default function Home() {
   return (
     <div className="min-h-[calc(100vh-80px)] flex items-center px-4">
       <div className="relative w-full max-w-5xl mx-auto">
-        {/* Soft background glow */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute -inset-24 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.35),transparent_55%),radial-gradient(circle_at_bottom,_rgba(129,140,248,0.35),transparent_55%)] opacity-70"
         />
 
         <div className="relative space-y-10">
-          {/* Top row: title + actions */}
           <div className="flex items-center justify-between gap-4 pt-4">
             <div>
               <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
@@ -104,16 +102,13 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Main row: left (description/CTA) + right (mission briefing) */}
           <div className="flex flex-col md:flex-row items-start justify-between gap-10 md:gap-14 pb-8">
-            {/* Left: description + controls + CTA */}
             <div className="flex-1 flex flex-col items-center md:items-start gap-6">
               <p className="text-center md:text-left text-sm md:text-base text-white/70 max-w-xl">
                 Dodge incoming asteroids while you race through space. The first hit triggers a Banana
                 puzzle that can give you a brief shield fail it and your run ends on the spot.
               </p>
 
-              {/* How to play / controls chips */}
               <div className="flex flex-wrap justify-center md:justify-start gap-3 text-xs md:text-sm text-white/70">
                 <div className="px-3 py-1 rounded-full bg-black/60 border border-white/10 flex items-center gap-2">
                   <span>🎮</span>
@@ -129,7 +124,6 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Main CTA */}
               <div className="flex flex-col items-center md:items-start gap-2 pt-2">
                 <button
                   onClick={handleStart}
@@ -153,7 +147,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right: Mission briefing (no big box) */}
             <div className="flex-1 flex justify-center md:justify-end">
               <div className="space-y-4 text-xs md:text-sm text-white/70 max-w-sm">
                 <h2 className="text-base md:text-lg font-semibold text-white">
@@ -202,7 +195,6 @@ export default function Home() {
                 </ol>
               </div>
             </div>
-            {/* end right column */}
           </div>
         </div>
       </div>

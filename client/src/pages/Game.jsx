@@ -21,11 +21,10 @@ export default function Game() {
 
   const [authChecked, setAuthChecked] = useState(false);
 
-  // Used to force a fresh game loop when clicking "Play Again"
   const [runId, setRunId] = useState(0);
 
   const [viewSize, setViewSize] = useState({ w: W, h: H });
-  const [hitEffect, setHitEffect] = useState(false); // hit shake/flash
+  const [hitEffect, setHitEffect] = useState(false);
 
   useEffect(() => {
     const fit = () => {
@@ -50,11 +49,10 @@ export default function Game() {
   const [countdown, setCountdown] = useState(0);
   const statsRef = useRef({ dodges: 0, correct: 0, wrong: 0 });
 
-  // New score = time + dodges
   function computeScore() {
-    const T = elapsedRef.current; // seconds
+    const T = elapsedRef.current;
     const { dodges: D } = statsRef.current;
-    const raw = Math.floor(T * 3) + D * 15; // 3 per second, 15 per dodge
+    const raw = Math.floor(T * 3) + D * 15;
     return Math.max(0, raw);
   }
 
@@ -77,11 +75,9 @@ export default function Game() {
       cleanup();
       startedRef.current = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authChecked, runId]);
 
   function triggerHitEffect() {
-    // brief shake + flash on hit
     setHitEffect(true);
     setTimeout(() => setHitEffect(false), 220);
   }
@@ -101,7 +97,7 @@ export default function Game() {
     setShowBanana(false);
     setRunning(true);
     setTimeSec(0);
-    setScore(0); // reset score for new run
+    setScore(0);
     setCountdown(0);
     setHitEffect(false);
 
@@ -121,8 +117,8 @@ export default function Game() {
         y: -40,
         r: rand(18, 30),
         vy: rand(120, 220),
-        rot: rand(0, Math.PI * 2),      // starting rotation
-        vr: rand(-1, 1) * 1.5           // rotation speed (radians/sec)
+        rot: rand(0, Math.PI * 2),
+        vr: rand(-1, 1) * 1.5 
       });
     }
 
@@ -140,11 +136,9 @@ export default function Game() {
       last = t;
 
       if (!pausedRef.current) {
-        // time
         elapsedRef.current += dt;
         setTimeSec(elapsedRef.current);
 
-        // spawn rate scales with time survived
         const rate = Math.min(1.5, 0.5 + elapsedRef.current / 60);
         accSpawn += dt * rate;
         while (accSpawn > 0.5) {
@@ -152,18 +146,15 @@ export default function Game() {
           spawn();
         }
 
-        // movement
         if (keys.has('ArrowLeft')) ship.x -= ship.speed * dt;
         if (keys.has('ArrowRight')) ship.x += ship.speed * dt;
         ship.x = Math.max(20, Math.min(W - 20, ship.x));
 
-        // move & rotate asteroids
         for (const a of ast) {
           a.y += a.vy * dt;
           a.rot += a.vr * dt;
         }
 
-        // remove offscreen + count dodges
         const before = ast.length;
         for (let i = ast.length - 1; i >= 0; i--) {
           if (ast[i].y > H + 40) ast.splice(i, 1);
@@ -171,32 +162,26 @@ export default function Game() {
         const removed = before - ast.length;
         if (removed > 0) {
           statsRef.current.dodges += removed;
-          // no direct score add here; score is derived from dodges + time
         }
 
-        // banana shield countdown
         if (immunityRef.current > 0) {
           immunityRef.current = Math.max(0, immunityRef.current - dt);
           const c = Math.ceil(immunityRef.current);
           setCountdown(c > 0 ? c : 0);
         }
 
-        // collisions
         for (const a of ast) {
           const dx = a.x - ship.x;
           const dy = a.y - ship.y;
           if (Math.hypot(dx, dy) < a.r + 24) {
-            // hit
             triggerHitEffect();
 
             if (immunityRef.current > 0) break;
             if (bananaUsedRef.current) {
-              // already used banana -> instant game over
               gameOver();
               break;
             }
             if (!bananaActiveRef.current) {
-              // first hit -> trigger banana quiz
               bananaActiveRef.current = true;
               pausedRef.current = true;
               setPaused(true);
@@ -207,7 +192,6 @@ export default function Game() {
         }
       }
 
-      // update score based on current time + dodges
       updateScore();
 
       render(ctx, ship, ast);
@@ -235,7 +219,6 @@ export default function Game() {
     ctx.canvas.width = W;
     ctx.canvas.height = H;
 
-    // --- background ---
     const grd = ctx.createLinearGradient(0, 0, 0, H);
     grd.addColorStop(0, '#0b1020');
     grd.addColorStop(1, '#10172a');
@@ -247,7 +230,6 @@ export default function Game() {
       ctx.fillRect((i * 73) % W, (i * 131) % H, 2, 2);
     }
 
-    // --- banana shield ring ---
     if (immunityRef.current > 0) {
       ctx.save();
       ctx.globalAlpha = 0.85;
@@ -261,31 +243,27 @@ export default function Game() {
       ctx.restore();
     }
 
-    // --- spaceship ---
     ctx.save();
     ctx.translate(ship.x, ship.y);
 
-    // ship body
     ctx.fillStyle = '#0f172a';
     ctx.strokeStyle = '#22d3ee';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(0, -26);    // nose
-    ctx.lineTo(18, 18);    // right wing tip
-    ctx.lineTo(8, 22);     // right engine
-    ctx.lineTo(-8, 22);    // left engine
-    ctx.lineTo(-18, 18);   // left wing tip
+    ctx.moveTo(0, -26);
+    ctx.lineTo(18, 18);
+    ctx.lineTo(8, 22); 
+    ctx.lineTo(-8, 22);
+    ctx.lineTo(-18, 18); 
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
 
-    // cockpit
     ctx.fillStyle = '#38bdf8';
     ctx.beginPath();
     ctx.ellipse(0, -8, 6, 8, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // engine flame
     ctx.fillStyle = '#f97316';
     ctx.beginPath();
     ctx.moveTo(-4, 22);
@@ -296,7 +274,6 @@ export default function Game() {
 
     ctx.restore();
 
-    // --- asteroids ---
     for (const a of ast) {
       ctx.save();
       ctx.translate(a.x, a.y);
@@ -306,9 +283,9 @@ export default function Game() {
       ctx.strokeStyle = '#7c3aed';
       ctx.lineWidth = 2;
 
-      const spikes = 8;            // number of “chunks”
-      const inner = a.r * 0.6;     // inner radius
-      const outer = a.r;           // outer radius
+      const spikes = 8;
+      const inner = a.r * 0.6;
+      const outer = a.r;  
 
       ctx.beginPath();
       for (let i = 0; i < spikes; i++) {
@@ -337,7 +314,6 @@ export default function Game() {
     try {
       await jpost('/api/scores/submit', payload);
     } catch {
-      // ignore
     }
     if (final) {
       runningRef.current = false;
@@ -353,7 +329,6 @@ export default function Game() {
     setCountdown(3);
     pausedRef.current = false;
     setPaused(false);
-    // score is NOT changed directly; it's derived from time + dodges
   }
 
   function bananaWrong() {
@@ -365,7 +340,6 @@ export default function Game() {
   }
 
   function playAgain() {
-    // Restart the game loop cleanly without changing routes
     setRunId((id) => id + 1);
   }
 

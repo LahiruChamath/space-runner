@@ -14,7 +14,6 @@ const app = express();
 const PORT = process.env.PORT || 8081;
 const ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:5173';
 
-// --- DB connect ---
 (async () => {
   const uri = process.env.MONGO_URI;
   const dbName = process.env.DB_NAME || 'space_runner';
@@ -29,12 +28,10 @@ const ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:5173';
   process.exit(1);
 });
 
-// --- middlewares ---
 app.use(cors({ origin: ORIGIN, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-// --- Auth ---
 app.post('/api/auth/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -95,11 +92,10 @@ app.get('/api/auth/me', (req, res) => {
   }
 });
 
-// --- Banana ---
 app.get('/api/banana/new', async (req, res) => {
   try {
     const puzzle = await newPuzzle();
-    res.json(puzzle); // { imageUrl, token }
+    res.json(puzzle);
   } catch (e) {
     console.error('Banana new error', e);
     res.status(502).send('Banana API unavailable');
@@ -112,7 +108,6 @@ app.post('/api/banana/answer', (req, res) => {
   res.json({ correct });
 });
 
-// --- Scores / runs ---
 function computeMixedScore(run) {
   const timeSec = run.durationMs / 1000;
   return Math.floor(
@@ -144,7 +139,6 @@ app.post('/api/scores/submit', authRequired, async (req, res) => {
   }
 });
 
-// raw top runs (not strictly needed but kept)
 app.get('/api/scores/top', async (req, res) => {
   const type = (req.query.type || 'mixed').toLowerCase();
   const sort =
@@ -155,7 +149,6 @@ app.get('/api/scores/top', async (req, res) => {
   res.json(rows);
 });
 
-// per-user best (used by leaderboard page)
 app.get('/api/scores/top-best', async (req, res) => {
   const rows = await Run.aggregate([
     {
@@ -173,5 +166,4 @@ app.get('/api/scores/top-best', async (req, res) => {
   res.json(rows);
 });
 
-// ---
 app.listen(PORT, () => console.log(`🚀 Server on :${PORT}`));

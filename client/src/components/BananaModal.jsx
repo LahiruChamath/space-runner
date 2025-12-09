@@ -39,7 +39,6 @@ export default function BananaModal({ open, onCorrect, onWrong }) {
   }
 
   function handleGiveUp() {
-    // Go back to main menu
     nav('/');
   }
 
@@ -48,7 +47,6 @@ export default function BananaModal({ open, onCorrect, onWrong }) {
   return (
     <div className="fixed inset-0 z-40 bg-black/70 flex items-center justify-center">
       <div className="card max-w-md w-full mx-4 p-5 space-y-4">
-        {/* New banner */}
         <div className="rounded-xl border border-amber-400/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-100 flex items-center gap-2">
           <span>⚠️</span>
           <span>Hit! Banana challenge incoming…</span>
@@ -81,7 +79,6 @@ export default function BananaModal({ open, onCorrect, onWrong }) {
                 />
               </div>
 
-              {/* Buttons side by side */}
               <div className="flex gap-2">
                 <button
                   type="button"
