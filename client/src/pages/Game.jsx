@@ -21,7 +21,11 @@ export default function Game() {
 
   const [authChecked, setAuthChecked] = useState(false);
 
+  const [runId, setRunId] = useState(0);
+
   const [viewSize, setViewSize] = useState({ w: W, h: H });
+  const [hitEffect, setHitEffect] = useState(false);
+
   useEffect(() => {
     const fit = () => {
       const vw = window.innerWidth;
@@ -45,6 +49,17 @@ export default function Game() {
   const [countdown, setCountdown] = useState(0);
   const statsRef = useRef({ dodges: 0, correct: 0, wrong: 0 });
 
+  function computeScore() {
+    const T = elapsedRef.current;
+    const { dodges: D } = statsRef.current;
+    const raw = Math.floor(T * 3) + D * 15;
+    return Math.max(0, raw);
+  }
+
+  function updateScore() {
+    setScore(computeScore());
+  }
+
   useEffect(() => {
     me()
       .then(() => setAuthChecked(true))
@@ -60,8 +75,12 @@ export default function Game() {
       cleanup();
       startedRef.current = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authChecked]);
+  }, [authChecked, runId]);
+
+  function triggerHitEffect() {
+    setHitEffect(true);
+    setTimeout(() => setHitEffect(false), 220);
+  }
 
   function startGame() {
     if (startedRef.current) return () => {};
@@ -80,6 +99,7 @@ export default function Game() {
     setTimeSec(0);
     setScore(0);
     setCountdown(0);
+    setHitEffect(false);
 
     const canvas = canvasRef.current;
     if (!canvas) return () => {};
@@ -95,8 +115,10 @@ export default function Game() {
       ast.push({
         x: rand(20, W - 20),
         y: -40,
-        r: rand(12, 28),
-        vy: rand(120, 220)
+        r: rand(18, 30),
+        vy: rand(120, 220),
+        rot: rand(0, Math.PI * 2),
+        vr: rand(-1, 1) * 1.5 
       });
     }
 
@@ -128,7 +150,10 @@ export default function Game() {
         if (keys.has('ArrowRight')) ship.x += ship.speed * dt;
         ship.x = Math.max(20, Math.min(W - 20, ship.x));
 
-        for (const a of ast) a.y += a.vy * dt;
+        for (const a of ast) {
+          a.y += a.vy * dt;
+          a.rot += a.vr * dt;
+        }
 
         const before = ast.length;
         for (let i = ast.length - 1; i >= 0; i--) {
@@ -137,7 +162,6 @@ export default function Game() {
         const removed = before - ast.length;
         if (removed > 0) {
           statsRef.current.dodges += removed;
-          setScore((s) => s + removed * 10);
         }
 
         if (immunityRef.current > 0) {
@@ -150,6 +174,8 @@ export default function Game() {
           const dx = a.x - ship.x;
           const dy = a.y - ship.y;
           if (Math.hypot(dx, dy) < a.r + 24) {
+            triggerHitEffect();
+
             if (immunityRef.current > 0) break;
             if (bananaUsedRef.current) {
               gameOver();
@@ -165,6 +191,8 @@ export default function Game() {
           }
         }
       }
+
+      updateScore();
 
       render(ctx, ship, ast);
       rafIdRef.current = requestAnimationFrame(frame);
@@ -215,16 +243,64 @@ export default function Game() {
       ctx.restore();
     }
 
-    ctx.fillStyle = '#22d3ee';
+    ctx.save();
+    ctx.translate(ship.x, ship.y);
+
+    ctx.fillStyle = '#0f172a';
+    ctx.strokeStyle = '#22d3ee';
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.arc(ship.x, ship.y, 24, 0, Math.PI * 2);
+    ctx.moveTo(0, -26);
+    ctx.lineTo(18, 18);
+    ctx.lineTo(8, 22); 
+    ctx.lineTo(-8, 22);
+    ctx.lineTo(-18, 18); 
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#38bdf8';
+    ctx.beginPath();
+    ctx.ellipse(0, -8, 6, 8, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.fillStyle = '#a78bfa';
+    ctx.fillStyle = '#f97316';
+    ctx.beginPath();
+    ctx.moveTo(-4, 22);
+    ctx.lineTo(0, 32);
+    ctx.lineTo(4, 22);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.restore();
+
     for (const a of ast) {
+      ctx.save();
+      ctx.translate(a.x, a.y);
+      ctx.rotate(a.rot || 0);
+
+      ctx.fillStyle = '#a78bfa';
+      ctx.strokeStyle = '#7c3aed';
+      ctx.lineWidth = 2;
+
+      const spikes = 8;
+      const inner = a.r * 0.6;
+      const outer = a.r;  
+
       ctx.beginPath();
-      ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2);
+      for (let i = 0; i < spikes; i++) {
+        const radius = i % 2 === 0 ? outer : inner;
+        const angle = (i / spikes) * Math.PI * 2;
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
       ctx.fill();
+      ctx.stroke();
+
+      ctx.restore();
     }
   }
 
@@ -238,7 +314,6 @@ export default function Game() {
     try {
       await jpost('/api/scores/submit', payload);
     } catch {
-      // ignore
     }
     if (final) {
       runningRef.current = false;
@@ -254,7 +329,6 @@ export default function Game() {
     setCountdown(3);
     pausedRef.current = false;
     setPaused(false);
-    setScore((s) => s + 50);
   }
 
   function bananaWrong() {
@@ -266,7 +340,7 @@ export default function Game() {
   }
 
   function playAgain() {
-    nav('/game?r=' + Date.now());
+    setRunId((id) => id + 1);
   }
 
   if (!authChecked) {
@@ -279,7 +353,7 @@ export default function Game() {
 
   return (
     <div style={{ minHeight: 'calc(100vh - 120px)', display: 'grid', placeItems: 'center' }}>
-      <div className="relative">
+      <div className={`relative ${hitEffect ? 'hit-shake' : ''}`}>
         <canvas
           ref={canvasRef}
           width={W}
@@ -287,8 +361,14 @@ export default function Game() {
           style={{ width: `${viewSize.w}px`, height: `${viewSize.h}px` }}
           className="border border-white/10 rounded-2xl"
         />
-        <HUD timeSec={timeSec} score={score} lives={1} />
 
+        <HUD
+  timeSec={timeSec}
+  score={score}
+  dodges={statsRef.current.dodges}
+  lives={1}
+  lifeState={showBanana ? 'fading' : 'normal'}
+/>
         {countdown > 0 && (
           <div className="absolute inset-0 grid place-items-center pointer-events-none">
             <div className="text-6xl font-bold text-white/80 drop-shadow">{countdown}</div>

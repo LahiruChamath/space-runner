@@ -12,7 +12,7 @@ function setCookie(res, token) {
   res.cookie('sid', token, {
     httpOnly: true,
     sameSite: 'lax',
-    secure: false, // set true in production with HTTPS
+    secure: false,
     path: '/'
   });
 }
